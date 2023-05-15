@@ -11,11 +11,16 @@ namespace server
 {
     public class GreetingServiceImpl : GreetingServiceBase
     {
-        public override Task<GreetingResponse> Greet(GreetingRequest request, ServerCallContext context)
+        public override async Task<GreetingResponse> Greet(GreetingRequest request, ServerCallContext context)
         {
+            if(string.IsNullOrWhiteSpace(request.Greeting.FirstName) || string.IsNullOrWhiteSpace(request.Greeting.FirstName))
+            {
+                throw new RpcException(new Status(StatusCode.InvalidArgument, "not passed name or surname"));
+            }
+
             var result = $"hello {request.Greeting.FirstName} {request.Greeting.LastName}";
 
-            return Task.FromResult(new GreetingResponse() { Result = result }); 
+            return new GreetingResponse() { Result = result }; 
         }
 
         public override async Task GreetManyTimes(GreetingRequest request, IServerStreamWriter<GreetingResponse> responseStream, ServerCallContext context)

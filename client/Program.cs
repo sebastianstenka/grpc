@@ -24,10 +24,10 @@ namespace client
             var client = new GreetingService.GreetingServiceClient(channel);
 
 
-            //Unary(client);
+            Unary(client);
             //await ServerStreaming(client);
             //await ClientStreaming(client);
-            await BiDirectionalStreaming(client);
+            //await BiDirectionalStreaming(client);
 
             channel.ShutdownAsync().Wait();
             Console.ReadKey();
@@ -35,12 +35,19 @@ namespace client
 
         private static void Unary(GreetingService.GreetingServiceClient client)
         {
-            var request = new GreetingRequest()
+            try
             {
-                Greeting = new Greeting() { FirstName = "John", LastName = "Smith" }
-            };
-            var response = client.Greet(request);
-            Console.WriteLine(response.Result);
+                var request = new GreetingRequest()
+                {
+                    Greeting = new Greeting() { FirstName = "John", LastName = "Smith" }
+                };
+                var response = client.Greet(request);
+                Console.WriteLine(response.Result);
+            }
+            catch (RpcException ex)
+            {
+                Console.WriteLine(ex.Status.Detail);
+            }
         }
 
 
