@@ -26,7 +26,8 @@ namespace client
 
             //Unary(client);
             //await ServerStreaming(client);
-            await ClientStreaming(client);
+            //await ClientStreaming(client);
+            await BiDirectionalStreaming(client);
 
             channel.ShutdownAsync().Wait();
             Console.ReadKey();
@@ -78,6 +79,34 @@ namespace client
             var response = await stream.ResponseAsync;
 
             Console.WriteLine(response.Result);
+        }
+
+        private static async Task BiDirectionalStreaming(GreetingService.GreetingServiceClient client)
+        {
+            var stream = client.GreetEveryone();
+
+            var responseReaderTask = Task.Run(async () =>
+            {
+                while (await stream.ResponseStream.MoveNext())
+                {
+                    Console.WriteLine("Received " + stream.ResponseStream.Current.Result);
+                }
+            });
+
+            Greeting[] greetings =
+            {
+                new Greeting() { FirstName = "John", LastName = "Smith" },
+                new Greeting() { FirstName = "John", LastName = "Bean" }
+            };
+
+            foreach (var greeting in greetings)
+            {
+                Console.WriteLine("Sending " + greeting);
+                await stream.RequestStream.WriteAsync(new GreetingRequest() { Greeting = greeting });
+            }
+
+            await stream.RequestStream.CompleteAsync();
+            await responseReaderTask;
         }
     }
 }
