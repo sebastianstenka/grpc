@@ -30,5 +30,17 @@ namespace server
                 await responseStream.WriteAsync(new GreetingResponse() { Result = result + $" {i}" });
             }
         }
+
+        public override async Task<GreetingResponse> LongGreet(IAsyncStreamReader<GreetingRequest> requestStream, ServerCallContext context)
+        {
+            var result = string.Empty;
+
+            while(await requestStream.MoveNext())
+            {
+                result += requestStream.Current.Greeting.FirstName + " " + requestStream.Current.Greeting.LastName + Environment.NewLine;
+            }
+
+            return new GreetingResponse() { Result = result };
+        }
     }
 }
