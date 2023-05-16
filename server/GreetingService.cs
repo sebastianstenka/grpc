@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static Greet.GreetingService;
 
@@ -13,6 +14,7 @@ namespace server
     {
         public override async Task<GreetingResponse> Greet(GreetingRequest request, ServerCallContext context)
         {
+            Thread.Sleep(1000);
             if(string.IsNullOrWhiteSpace(request.Greeting.FirstName) || string.IsNullOrWhiteSpace(request.Greeting.FirstName))
             {
                 throw new RpcException(new Status(StatusCode.InvalidArgument, "not passed name or surname"));

@@ -24,7 +24,8 @@ namespace client
             var client = new GreetingService.GreetingServiceClient(channel);
 
 
-            Unary(client);
+            //Unary(client);
+            UnaryWithDeadline(client);
             //await ServerStreaming(client);
             //await ClientStreaming(client);
             //await BiDirectionalStreaming(client);
@@ -45,6 +46,26 @@ namespace client
                 Console.WriteLine(response.Result);
             }
             catch (RpcException ex)
+            {
+                Console.WriteLine(ex.Status.Detail);
+            }
+        }
+
+        private static void UnaryWithDeadline(GreetingService.GreetingServiceClient client)
+        {
+            try
+            {
+                var request = new GreetingRequest()
+                {
+                    Greeting = new Greeting() { FirstName = "John", LastName = "Smith" }
+                };
+                var response = client.Greet(
+                    request, 
+                    deadline: DateTime.UtcNow.AddMilliseconds(50));
+
+                Console.WriteLine(response.Result);
+            }
+            catch (RpcException ex) when (ex.StatusCode == StatusCode.DeadlineExceeded)
             {
                 Console.WriteLine(ex.Status.Detail);
             }
